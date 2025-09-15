@@ -1,0 +1,470 @@
+/* Listings.css - hero with elevated filter bar, brand chips, body types */
+
+.listings-page {
+  background: #ffffff;
+  color: #111827;
+  /* Match Home fonts (add Quicksand + Georgia accents) */
+  font-family: Inter, Poppins, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Quicksand', Georgia, serif;
+}
+
+/* Top hero area */
+.listing-hero {
+  /* Dark hero like Home with subtle bg image + blur */
+  background: #0f172a; /* fallback band color */
+  padding-top: 0; /* Home hero uses content offsets, not big padding */
+  padding-bottom: 0;
+  position: relative;
+  overflow: visible; /* allow filter-card to extend over section 2 */
+  /* Full-bleed horizontally like Home */
+  width: 100vw;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  z-index: 4; /* above section 2 (which uses z-index:2/3) */
+  /* Short rectangular band */
+  height: 460px;
+  margin-top: -50px;
+}
+
+/* subtle decorative lines */
+.listing-hero::before,
+.listing-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.listing-hero::before {
+  /* Subtle gradient overlay for legibility over slideshow */
+  background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.10) 100%);
+  opacity: 1;
+}
+.listing-hero::after {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300"><path d="M0 260 Q300 200 600 240 T1200 220" fill="none" stroke="%23ffffff22" stroke-width="2"/></svg>') center bottom / cover no-repeat;
+  opacity: 0.6;
+}
+
+.hero-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 16px;
+  position: relative;
+  z-index: 5; /* above slideshow and section 2 */
+}
+
+/* Auto-scrolling slideshow band */
+.hero-slideshow {
+  position: absolute;
+  inset: 0;
+  z-index: 0; /* behind the filter card */
+}
+.hero-slideshow .slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 800ms ease-in-out;
+  filter: saturate(0.9) brightness(0.95);
+}
+.hero-slideshow .slide.is-active {
+  opacity: 1;
+}
+
+/* Filter card */
+.filter-card {
+  /* Translucent panel to match Home FilterBar */
+  background: rgba(255,255,255,0.36);
+  /* Remove hard border so tabs look visually outside the card */
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.08); /* softer shadow to avoid edge effect */
+  /* Further reduce vertical padding to slim height */
+  padding: 14px 14px 10px;
+  width: calc(100% - 32px); /* widen bar while keeping page margins */
+  max-width: 1120px;        /* align with hero-inner width */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  position: absolute; /* allow overlap over following sections */
+  left: 50%;
+  transform: translateX(-50%);
+  top: 440px; /* moved slightly further down */
+  z-index: 100; /* ensure the card itself sits above surrounding content */
+}
+
+.filter-tabs {
+  position: absolute;
+  top: -38px;           /* lifted slightly to clear any underlying edge */
+  left: 50%;            /* center horizontally */
+  transform: translateX(-50%);
+  z-index: 101;         /* above the card */
+  display: inline-flex;
+  gap: 6px;
+  background: rgba(255,255,255,0.65);   /* reduced transparency (more opaque) */
+  padding: 0;                /* no inner box space */
+  border-radius: 0;          /* remove rounded outline */
+  border: none;              /* no border at all */
+  white-space: nowrap;   /* keep all status tabs on a single line */
+  outline: none;         /* avoid any focus rings on container */
+  box-shadow: none;      /* ensure no shadow looks like a border */
+  overflow-x: auto;      /* allow horizontal scroll on narrow screens */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox hide */
+  -ms-overflow-style: none; /* IE/Edge hide */
+}
+
+.filter-tabs::-webkit-scrollbar { display: none; width: 0; height: 0; background: transparent; }
+
+.tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #374151;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;  /* prevent individual tab labels from wrapping */
+}
+.tab.is-active {
+  background: #ffffff;
+  color: #111827;
+  /* Accent similar to Home's bright line */
+  box-shadow: 0 1px 0 rgba(0,0,0,0.04), inset 0 -2px 0 #f59e0b;
+}
+
+.inputs-row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(140px, 1fr));
+  gap: 6px 8px;         /* even tighter vertical spacing */
+  align-items: center;
+}
+
+.fld { display: flex; flex-direction: column; gap: 4px; }
+.fld > label { font-size: 12px; font-weight: 700; color: #374151; line-height: 1; }
+
+/* Hide headings above the inputs inside the filter bar only */
+.filter-card .fld > label { display: none; }
+
+.select-wrap { position: relative; }
+.select-wrap select {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  width: 100%;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  color: #111827;
+  padding: 6px 32px 6px 10px;  /* smaller height */
+  border-radius: 8px;
+  font-weight: 600;
+  outline: none;
+}
+.select-wrap select:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147,197,253,0.35);
+}
+.text-input {
+  width: 100%;
+  background: #ffffff; /* solid to improve legibility on translucent card */
+  border: 1px solid #e5e7eb;
+  color: #111827;
+  padding: 6px 10px;     /* smaller height */
+  border-radius: 8px;
+  font-weight: 600;
+  outline: none;
+}
+.text-input:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147,197,253,0.35);
+}
+.chev {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  height: 22px; width: 22px; display: grid; place-items: center; /* smaller */
+  border: 1px solid #e5e7eb; border-radius: 6px; background: #ffffff;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: center;         /* center the button */
+  grid-column: 1 / -1;             /* span full width */
+  grid-row: 2;                     /* place below the inputs */
+  margin-top: 8px;                 /* space above the button */
+}
+.btn-primary {
+  background: #111827; /* dark button matches site */
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 12px;    /* further reduced height */
+  font-size: 13px;      /* slightly smaller text */
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(17, 24, 39, 0.3);
+}
+.btn-primary:hover { background: #0b1220; box-shadow: 0 8px 20px rgba(17,24,39,0.4); }
+
+/* Responsive: only adjust filter grid */
+@media (max-width: 1024px) {
+  .inputs-row { grid-template-columns: repeat(3, minmax(140px, 1fr)); }
+  .action { grid-column: 1 / -1; grid-row: 2; justify-content: center; }
+}
+@media (max-width: 768px) {
+  .inputs-row { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+  .action { grid-column: 1 / -1; grid-row: 2; justify-content: center; }
+}
+@media (max-width: 480px) {
+  .inputs-row { grid-template-columns: 1fr; }
+  .action { grid-column: 1 / -1; grid-row: 2; justify-content: center; }
+}
+
+/* listing page section 2 below hero */
+.listing-page-section-2 {
+  width: 100vw;           /* edge-to-edge like hero */
+  margin-left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;    /* pure white backdrop like Browse by Category */
+  padding: 32px 0;        /* breathing space */
+  margin-top: -50px;
+  margin-bottom: 50px;
+  height: 800px;           /* reduced background height */
+  position: relative;     /* allow top-edge shadow pseudo */
+  z-index: 2;             /* ensure above hero overlays */
+}
+.listing-page-section-2__inner {
+  max-width: 1120px;      /* match hero-inner width */
+  margin: 0 auto;
+  margin-top: 220px;       /* move inner downwards a bit more */
+  padding: 32px 16px 48px;/* inner spacing */
+  background: rgb(255, 252, 242); /* pale yellow card */
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -12px 100px rgba(0, 0, 0, 0.86), 0 12px 70px rgba(0, 0, 0, 0.26);
+  min-height: 420px;
+  position: relative;
+  z-index: 3;
+}
+
+/* Listing Page Section 2 — inner content */
+.lp2-heading { text-align: center; margin-bottom: 20px; }
+.lp2-eyebrow {
+  color: #ef4444; /* red */
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+.lp2-title {
+  margin: 6px 0 0;
+  font-size: clamp(22px, 2.6vw, 34px);
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Brands chips row */
+.lp2-brands {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 10px 2px 2px;
+  margin: 10px auto 22px;
+  max-width: 920px;
+  scrollbar-width: thin;
+}
+.lp2-brands::-webkit-scrollbar { height: 6px; }
+.lp2-brands::-webkit-scrollbar-thumb { background: rgba(17,24,39,0.15); border-radius: 999px; }
+
+.brand-chip {
+  appearance: none;
+  border: 1px solid rgba(17,24,39,0.12);
+  background: #fff;
+  color: #111827;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.brand-chip:hover { background: #fff7f7; border-color: rgba(239,68,68,0.35); }
+.brand-chip.is-active { background: #ef4444; color: #fff; border-color: #ef4444; box-shadow: 0 6px 16px rgba(239,68,68,0.3); }
+
+/* Body type cards */
+.lp2-bodies {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+  justify-items: center;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.body-card {
+  appearance: none;
+  width: 100%;
+  max-width: 220px;
+  background: #fff;
+  border: 1px solid rgba(17,24,39,0.1);
+  border-radius: 12px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+  position: relative;
+}
+.body-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(17,24,39,0.15); border-color: rgba(17,24,39,0.2); }
+.body-card.is-active { background: #fff; box-shadow: 0 16px 40px rgba(239,68,68,0.25); border-color: rgba(239,68,68,0.5); }
+
+.body-label { font-weight: 600; color: #111827; }
+.body-badge {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  background: #ef4444;
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
+  border-radius: 999px;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .lp2-brands { gap: 8px; }
+  .brand-chip { padding: 7px 12px; font-size: 13px; }
+  .lp2-bodies { grid-template-columns: repeat(2, minmax(120px, 1fr)); gap: 12px; }
+}
+@media (max-width: 480px) {
+  .lp2-bodies { grid-template-columns: 1fr 1fr; }
+}
+
+/* Results section (full-bleed) */
+.results-section {
+  width: 100vw;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  padding: 0 0 96px; /* more breathing space at the bottom */
+  margin-top: -50px; /* add top margin to increase spacing from above */
+  background: #ffffff;
+  min-height: 600px; /* taller base height */
+  height: auto;      /* allow to grow with content */
+  box-sizing: border-box;
+  overflow-x: hidden; /* prevent horizontal scroll */
+}
+
+.results-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0 16px;
+  max-width: none;
+  padding: 0;
+  flex-wrap: wrap; /* allow wrapping on small screens */
+}
+.results-title { margin: 0; font-size: 20px; font-weight: 800; }
+.results-count { color: #6b7280; font-weight: 700; }
+
+.filters-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 12px;
+  max-width: none;
+  padding: 0;
+}
+.chip {
+  background: #f3f4f6;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 6px 10px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.results-empty {
+  padding: 24px 0;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
+  color: #6b7280;
+  font-weight: 600;
+  max-width: none;
+  margin: 0;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.result-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  max-width: 100%;
+  overflow: hidden; /* contain inner overflow */
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-title { margin: 0; font-size: 16px; font-weight: 800; overflow-wrap: anywhere; }
+.status-pill {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+}
+.status-pill.new { background: #10b981; }
+.status-pill.used { background: #f59e0b; }
+
+.card-attrs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  color: #374151;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+/* Ensure images or media inside cards are responsive */
+.result-card img, .result-card video, .result-card canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Responsive gutters and grid adjustments */
+@media (max-width: 1280px) {
+  .results-section { padding-left: 16px; padding-right: 16px; }
+}
+@media (max-width: 1024px) {
+  .results-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+}
+@media (max-width: 768px) {
+  .results-grid { grid-template-columns: repeat(2, minmax(200px, 1fr)); gap: 12px; }
+}
+@media (max-width: 520px) {
+  .results-grid { grid-template-columns: 1fr; gap: 10px; }
+  .chip { white-space: normal; text-overflow: clip; }
+}
