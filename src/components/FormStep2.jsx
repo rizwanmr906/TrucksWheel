@@ -4,18 +4,18 @@ export const Step1 = ({ formData, errors, handleChange, models, years, cities, i
   <div className="form-step">
     <div className="form-row">
       <div className="form-group">
-        <label htmlFor="model">Model*</label>
+        <label htmlFor="title">Title*</label>
         <input 
           type="text" 
-          id="model" 
-          name="model"
-          value={formData.model}
+          id="title" 
+          name="title"
+          value={formData.title}
           onChange={handleChange}
           placeholder="Honda CIVIC"
-          className={errors.model ? 'error' : ''}
+          className={errors.title ? 'error' : ''}
           required 
         />
-        {errors.model && <span className="error-message">{errors.model}</span>}
+        {errors.title&& <span className="error-message">{errors.title}</span>}
       </div>
       
       <div className="form-group">

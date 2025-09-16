@@ -9,6 +9,7 @@ const cities = [
   'Multan', 'Gujranwala', 'Peshawar', 'Quetta', 'Sialkot', 'Other'
 ];
 
+
 const models = [
   'Volvo', 'Scania', 'Mercedes', 'MAN', 'Tata', 'Hino', 'Isuzu',
   'Hyundai', 'FAW', 'JAC', 'JMC', 'Other'

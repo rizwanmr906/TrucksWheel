@@ -6,7 +6,7 @@ import './HeavyVehicleListing.css';
 
 const cities = [ ];
 
-const models = [ ];
+const title= [ ];
 
 const insuranceTypes = [ ];
 
@@ -29,7 +29,7 @@ const AddListingPage= () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     //Basic Information
-    model: '',
+    title: '',
     year: '',
     kilometers: '',
     city: '',
@@ -89,7 +89,7 @@ const AddListingPage= () => {
     
     switch(step) {
       case 1:
-        if (!formData.model) newErrors.model = 'Please select a model';
+        if (!formData.model) newErrors.title = 'Please enter title';
         if (!formData.year) newErrors.year = 'Please select a year';
         if (!formData.kilometers) {
           newErrors.kilometers = 'Please enter kilometers';
@@ -246,7 +246,7 @@ const AddListingPage= () => {
                 formData={formData}
                 errors={errors}
                 handleChange={handleChange}
-                models={models}
+                title={title}
                 years={years}
                 cities={cities}
                 kilometers={formData.kilometers}
