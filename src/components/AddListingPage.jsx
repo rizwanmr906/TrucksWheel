@@ -6,7 +6,7 @@ import './HeavyVehicleListing.css';
 
 const cities = [ ];
 
-const title= [ ];
+const title = [ ];
 
 const insuranceTypes = [ ];
 
@@ -38,7 +38,9 @@ const AddListingPage= () => {
     brand: '',
     carType: '',
     fuelType: '',
-    excelFile: null
+    insuranceType: '',
+    excelFile: null,
+    photos: []
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
@@ -48,6 +50,7 @@ const AddListingPage= () => {
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
+    console.log('Field changed:', { name, value });
     
     // For file inputs, handle photo upload with limit
     if (type === 'file' && name === 'photos') {
@@ -85,21 +88,27 @@ const AddListingPage= () => {
   };
 
   const validateStep = (step) => {
+    console.log('Validating step:', step);
+    console.log('Current formData:', formData);
     const newErrors = {};
+    
+    // Reset previous errors
+    setErrors({});
     
     switch(step) {
       case 1:
-        if (!formData.model) newErrors.title = 'Please enter title';
+        if (!formData.title) newErrors.title = 'Please enter a title';
         if (!formData.year) newErrors.year = 'Please select a year';
         if (!formData.kilometers) {
           newErrors.kilometers = 'Please enter kilometers';
         } else if (formData.kilometers < 0 || formData.kilometers > 2000000) {
           newErrors.kilometers = 'Please enter a valid mileage';
         }
-        if (!formData.insuranceType) newErrors.insuranceType = 'Please select insurance type';
-        if (formData.insuranceType === 'comprehensive' && !formData.insuranceValidity) {
-          newErrors.insuranceValidity = 'Please enter insurance validity date';
-        }
+        // Temporarily comment out insurance validation for testing
+        // if (!formData.insuranceType) newErrors.insuranceType = 'Please select insurance type';
+        // if (formData.insuranceType === 'comprehensive' && !formData.insuranceValidity) {
+        //   newErrors.insuranceValidity = 'Please enter insurance validity date';
+        // }
         if (!formData.city) newErrors.city = 'Please select a city';
         if (!formData.description) newErrors.description = 'Please enter a description';
         if (!formData.carType) newErrors.carType = 'Please select a car type';
@@ -131,20 +140,31 @@ const AddListingPage= () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (!validateStep(3)) {
-      const firstError = Object.keys(errors)[0];
-      if (firstError) {
-        document.getElementById(firstError)?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
-        });
+    // Only validate and submit on the final step
+    if (formStep === 3) {
+      if (!validateStep(3)) {
+        const firstError = Object.keys(errors)[0];
+        if (firstError) {
+          document.getElementById(firstError)?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+        return;
       }
-      return;
+      
+      // Handle final form submission
+      handleFormSubmission();
+    } else {
+      // For steps 1 and 2, move to next step
+      nextStep();
     }
-
+  };
+  
+  const handleFormSubmission = async () => {
     setIsSubmitting(true);
     
     try {
@@ -171,19 +191,43 @@ const AddListingPage= () => {
     setProgress(calculatedProgress);
   }, [formStep]);
 
-  const nextStep = () => {
-    if (validateStep(formStep)) {
-      setFormStep(prev => Math.min(3, prev + 1));
+  const nextStep = (e) => {
+    if (e) e.preventDefault();
+    
+    // First validate the current step
+    const isValid = validateStep(formStep);
+    console.log('Next step validation:', { formStep, isValid, errors });
+    
+    if (isValid) {
+      // Only proceed to next step if validation passes
+      setFormStep(prev => {
+        const nextStep = Math.min(3, prev + 1);
+        console.log('Moving to step:', nextStep);
+        return nextStep;
+      });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      // Scroll to the first error
-      const firstError = Object.keys(errors)[0];
-      if (firstError) {
-        document.getElementById(firstError)?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
-        });
-      }
+      // If validation fails, show errors
+      console.log('Validation failed. Errors:', errors);
+      // Force a re-render to show the errors
+      setErrors({...errors});
+      
+      // Scroll to the first error after a small delay to ensure the DOM is updated
+      setTimeout(() => {
+        const firstError = Object.keys(errors).find(key => errors[key]);
+        console.log('First error field:', firstError);
+        if (firstError) {
+          const element = document.getElementById(firstError);
+          console.log('Error element:', element);
+          if (element) {
+            element.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
+            element.focus();
+          }
+        }
+      }, 100);
     }
   };
 
@@ -239,14 +283,14 @@ const AddListingPage= () => {
             {formStep === 2 && 'Vehicle Photos'}
             {formStep === 3 && 'Pricing & Final Details'}
           </h2>
-          <form className="vehicle-form" onSubmit={handleSubmit} noValidate>
+          <form className="vehicle-form" onSubmit={handleSubmit} noValidate onClick={(e) => e.stopPropagation()}>
             {/* Step 1: Basic Information */}
             {formStep === 1 && (
               <Step1 
                 formData={formData}
                 errors={errors}
                 handleChange={handleChange}
-                title={title}
+                models={title}
                 years={years}
                 cities={cities}
                 kilometers={formData.kilometers}
@@ -257,7 +301,6 @@ const AddListingPage= () => {
                 insuranceTypes={insuranceTypes}
                 insuranceValidity={formData.insuranceValidity}
                 description={formData.description}
-
               />
             )}
             

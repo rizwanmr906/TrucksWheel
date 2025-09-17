@@ -15,7 +15,7 @@ export const Step1 = ({ formData, errors, handleChange, models, years, cities, i
           className={errors.title ? 'error' : ''}
           required 
         />
-        {errors.title&& <span className="error-message">{errors.title}</span>}
+        {errors.title && <span className="error-message">{errors.title}</span>}
       </div>
       
       <div className="form-group">
