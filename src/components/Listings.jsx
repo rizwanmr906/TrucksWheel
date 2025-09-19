@@ -94,6 +94,27 @@ export default function Listings() {
   // body can be set from Section 2
   const body = searchParams.get('body') || '';
 
+  // State for approved listings
+  const [approvedListings, setApprovedListings] = React.useState([]);
+
+  // Fetch approved listings on mount
+  React.useEffect(() => {
+    const fetchApprovedListings = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/listings/approved');
+        if (response.ok) {
+          const data = await response.json();
+          setApprovedListings(data);
+        } else {
+          console.error('Failed to fetch approved listings');
+        }
+      } catch (error) {
+        console.error('Error fetching approved listings:', error);
+      }
+    };
+    fetchApprovedListings();
+  }, []);
+
   // Ref to results section for smooth scrolling
   const resultsRef = React.useRef(null);
   const scrollToResults = React.useCallback(() => {
@@ -314,95 +335,42 @@ export default function Listings() {
       >
         <div className="results-header">
           <h3 className="results-title">Results</h3>
-          <div className="results-count">{filteredVehicles.length} matches</div>
+          <div className="results-count">{approvedListings.length} approved listings</div>
         </div>
 
-        {/* Active filters summary */}
-        <div className="filters-chips">
-          {status && status !== 'all' ? <span className="chip">Status: {status}</span> : null}
-          {brand ? <span className="chip">Brand: {brand}</span> : null}
-          {type ? <span className="chip">Type: {type}</span> : null}
-          {model ? <span className="chip">Model: {model}</span> : null}
-          {trans ? <span className="chip">Trans: {trans}</span> : null}
-          {city ? <span className="chip">City: {city}</span> : null}
-          {area ? <span className="chip">Area: {area}</span> : null}
-          {body ? <span className="chip">Body: {body}</span> : null}
-        </div>
-
-        {filteredVehicles.length === 0 ? (
-          <div className="results-empty">No results found. Try changing filters.</div>
+        {approvedListings.length === 0 ? (
+          <div className="results-empty">No approved listings found.</div>
         ) : (
           <div className="results-grid">
-            {filteredVehicles.map((v) => (
-              <article key={v.id} className="result-card" style={{ 
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column'
-              }}>
-                {v.image ? (
-                  <figure className="card-media" style={{ margin: '8px 0 10px', position: 'relative' }}>
-                    {v.featured && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '10px',
-                        right: '10px',
-                        backgroundColor: '#ef4444',
-                        color: '#fff',
-                        padding: '2px 8px',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem',
-                        fontWeight: '700',
-                        zIndex: 2
-                      }}>
-                        FEATURED
-                      </div>
-                    )}
-                    <img src={v.image} alt={v.title} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
-                  </figure>
-                ) : null}
-                <div className="card-head">
-                  <h4 className="card-title">{v.title}</h4>
-                  <span className={`status-pill ${v.status}`}>{v.status.toUpperCase()}</span>
-                </div>
-                <div className="card-attrs">
-                  <div>Brand: {v.brand}</div>
-                  <div>Type: {v.type}</div>
-                  <div>Model: {v.model}</div>
-                  <div>Body: {v.body}</div>
-                  <div>Trans: {v.trans}</div>
-                  <div>City: {v.city}</div>
-                </div>
-                <div style={{
-                  marginTop: 'auto',
-                  padding: '12px 16px',
-                  borderTop: '1px solid #e5e7eb',
+            {approvedListings.map((listing) => {
+              let photos = [];
+              try {
+                photos = listing.photos ? JSON.parse(listing.photos) : [];
+              } catch (e) {
+                photos = [];
+              }
+              return (
+                <article key={listing.id} className="result-card" style={{
+                  position: 'relative',
                   display: 'flex',
-                  justifyContent: 'flex-end'
+                  flexDirection: 'column'
                 }}>
-                  <Link 
-                    to={`/vehicle/${v.id}`}
-                    style={{
-                      padding: '8px 16px',
-                      backgroundColor: '#3b82f6',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontWeight: '600',
-                      fontSize: '0.875rem',
-                      cursor: 'pointer',
-                      transition: 'background-color 0.2s',
-                      textDecoration: 'none',
-                      display: 'inline-block',
-                      ':hover': {
-                        backgroundColor: '#2563eb'
-                      }
-                    }}
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </article>
-            ))}
+                  {photos.length > 0 ? (
+                    <figure className="card-media" style={{ margin: '8px 0 10px', position: 'relative' }}>
+<img src={`http://localhost:5000${photos[0]}`} alt={listing.title} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
+                    </figure>
+                  ) : null}
+                  <div className="card-head">
+                    <h4 className="card-title">{listing.title}</h4>
+                    <span className="weight-tag">{listing.weightClass === 'light' ? 'Light Vehicle' : 'Heavy Vehicle'}</span>
+                  </div>
+                  <div className="card-attrs">
+                    <div>{listing.price ? `₨${listing.price}` : 'N/A'}</div>
+                    <div>City: {listing.city || 'N/A'}</div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </section>

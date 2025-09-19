@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import SuccessMessage from './SuccessMessage';
 import { Step1, Step2, Step3 } from './FormSteps';
 import './HeavyVehicleListing.css';
@@ -26,7 +27,7 @@ const HeavyVehicleListing = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     //Basic Information
-    model: '',
+    title: '',
     year: '',
     kilometers: '',
     city: '',
@@ -66,17 +67,18 @@ const HeavyVehicleListing = () => {
     
     switch(step) {
       case 1:
-        if (!formData.model) newErrors.model = 'Please select a model';
+        if (!formData.title) newErrors.title = 'Please select a title';
         if (!formData.year) newErrors.year = 'Please select a year';
         if (!formData.kilometers) {
           newErrors.kilometers = 'Please enter kilometers';
         } else if (formData.kilometers < 0 || formData.kilometers > 2000000) {
           newErrors.kilometers = 'Please enter a valid mileage';
         }
-        if (!formData.insuranceType) newErrors.insuranceType = 'Please select insurance type';
-        if (formData.insuranceType === 'comprehensive' && !formData.insuranceValidity) {
-          newErrors.insuranceValidity = 'Please enter insurance validity date';
-        }
+        // Removed insuranceType validation as per user request
+        // if (!formData.insuranceType) newErrors.insuranceType = 'Please select insurance type';
+        // if (formData.insuranceType === 'comprehensive' && !formData.insuranceValidity) {
+        //   newErrors.insuranceValidity = 'Please enter insurance validity date';
+        // }
         if (!formData.city) newErrors.city = 'Please select a city';
         if (!formData.description) newErrors.description = 'Please enter a description';
         break;
@@ -106,7 +108,7 @@ const HeavyVehicleListing = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateStep(3)) {
       const firstError = Object.keys(errors)[0];
       if (firstError) {
@@ -119,17 +121,43 @@ const HeavyVehicleListing = () => {
     }
 
     setIsSubmitting(true);
-    
-    try {
-      // Here you would typically make an API call
-      console.log('Form submitted:', formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Show success state
+
+      try {
+      const listingData = {
+        title: formData.title,
+        year: formData.year,
+        city: formData.city,
+        kilometers: formData.kilometers,
+        description: formData.description,
+        price: formData.price,
+        seller: 'Anonymous Seller' // TODO: Get from user context
+      };
+
+      // Prepare form data for photos upload
+      const formPayload = new FormData();
+      formPayload.append('title', listingData.title);
+      formPayload.append('year', listingData.year);
+      formPayload.append('city', listingData.city);
+      formPayload.append('kilometers', listingData.kilometers);
+      formPayload.append('description', listingData.description);
+      formPayload.append('price', listingData.price);
+      formPayload.append('seller', listingData.seller);
+
+      if (formData.photos && formData.photos.length > 0) {
+        formData.photos.forEach((photo) => {
+          formPayload.append('photos', photo);
+        });
+      }
+
+      const response = await axios.post('http://localhost:5000/heavyvehicle/listings', formPayload, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      console.log('Heavy vehicle listing submitted:', formData);
       setIsSubmitted(true);
-      
+
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('There was an error submitting your listing. Please try again.');
@@ -145,12 +173,45 @@ const HeavyVehicleListing = () => {
   }, [formStep]);
 
   const nextStep = () => {
-    if (validateStep(formStep)) {
+    const isValid = validateStep(formStep);
+    if (isValid) {
       setFormStep(prev => Math.min(3, prev + 1));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      // Scroll to the first error
-      const firstError = Object.keys(errors)[0];
+      // Scroll to the first error immediately after validation
+      const newErrors = {};
+      switch(formStep) {
+        case 1:
+          if (!formData.title) newErrors.title = 'Please select a title';
+          if (!formData.year) newErrors.year = 'Please select a year';
+          if (!formData.kilometers) {
+            newErrors.kilometers = 'Please enter kilometers';
+          } else if (formData.kilometers < 0 || formData.kilometers > 2000000) {
+            newErrors.kilometers = 'Please enter a valid mileage';
+          }
+          if (!formData.insuranceType) newErrors.insuranceType = 'Please select insurance type';
+          if (formData.insuranceType === 'comprehensive' && !formData.insuranceValidity) {
+            newErrors.insuranceValidity = 'Please enter insurance validity date';
+          }
+          if (!formData.city) newErrors.city = 'Please select a city';
+          if (!formData.description) newErrors.description = 'Please enter a description';
+          break;
+        case 2:
+          if (!formData.photos || formData.photos.length === 0) {
+            newErrors.photos = 'Please upload at least one photo';
+          }
+          break;
+        case 3:
+          if (!formData.price) {
+            newErrors.price = 'Please enter a price';
+          } else if (formData.price < 0) {
+            newErrors.price = 'Price cannot be negative';
+          }
+          break;
+        default:
+          break;
+      }
+      const firstError = Object.keys(newErrors)[0];
       if (firstError) {
         document.getElementById(firstError)?.scrollIntoView({
           behavior: 'smooth',

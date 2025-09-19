@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import SuccessMessage from './SuccessMessage';
 import { Step1, Step2, Step3 } from './FormStep2';
 import './HeavyVehicleListing.css';
@@ -166,17 +167,36 @@ const AddListingPage= () => {
   
   const handleFormSubmission = async () => {
     setIsSubmitting(true);
-    
+
     try {
-      // Here you would typically make an API call
-      console.log('Form submitted:', formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Show success state
+      const formDataToSend = new FormData();
+      formDataToSend.append('vehicle_type', 'light');
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('seller', 'Anonymous Seller'); // TODO: Get from user context
+      formDataToSend.append('year', formData.year);
+      formDataToSend.append('city', formData.city);
+      formDataToSend.append('kilometers', formData.kilometers);
+      formDataToSend.append('transmission', formData.transmission);
+      formDataToSend.append('brand', formData.brand);
+      formDataToSend.append('fuel_type', formData.fuelType);
+      formDataToSend.append('car_type', formData.carType);
+      formDataToSend.append('price', formData.price);
+
+      // Append photos
+      formData.photos.forEach(file => {
+        formDataToSend.append('photos', file);
+      });
+
+      const response = await axios.post('http://localhost:5000/listings', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      console.log('Light vehicle listing submitted:', formData);
       setIsSubmitted(true);
-      
+
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('There was an error submitting your listing. Please try again.');
